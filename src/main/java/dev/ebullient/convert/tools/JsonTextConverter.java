@@ -39,7 +39,7 @@ public interface JsonTextConverter<T extends IndexType> {
     static final Pattern dicePatternWithSpan = Pattern.compile("(.+)(<span[^>]+>)(.+)(</span>)");
     static final Pattern footnotePattern = Pattern.compile("\\{@footnote ([^}]+)}");
     static final Pattern textAverageRoll = Pattern.compile(" (\\d+) \\((`dice:[^`]+text\\(([^)]+)\\)`)\\)");
-    static final Pattern averageRoll = Pattern.compile(" (\\d+) \\(`(dice:[^`]+)` (\\([^)]+\\))\\)");
+    static final Pattern averageRoll = Pattern.compile(" (\\d+) \\(`(dice:[^`]+)`(?: (\\([^)]+\\)))?\\)");
 
     void appendToText(List<String> inner, JsonNode target, String heading);
 
@@ -207,13 +207,12 @@ public interface JsonTextConverter<T extends IndexType> {
         String dice = codeString(diceRoll.replace("1d20", ""), formulaState);
 
         if (diceRoll.matches(JsonTextConverter.DICE_FORMULA)) {
-            String postText = appendFormula ? " (" + dice + ")" : "";
             if (formulaState.noRoller()) {
                 return displayText == null
                         ? dice
-                        : displayText + postText;
+                        : appendFormula ? displayText + " (" + dice + ")" : displayText;
             }
-            return diceFormula(diceRoll.replace(" ", ""), displayText, useAverage) + postText;
+            return diceFormula(diceRoll.replace(" ", ""), displayText, useAverage, appendFormula);
         } else {
             // Most likely have display text here. (Prompt, spell level, class level most likely cause)
             return displayText == null
@@ -224,18 +223,20 @@ public interface JsonTextConverter<T extends IndexType> {
 
     default String diceFormula(String diceRoll) {
         // Only a dice formula in the roll part. May also have display text.
-        return "`dice: " + diceRoll + "`";
+        return "`dice:" + diceRoll + "`";
     }
 
-    default String diceFormula(String diceRoll, String displayText, boolean average) {
+    default String diceFormula(String diceRoll, String displayText, boolean average, boolean paren) {
         // needs to be escaped: \\ to escape the \\ so it is preserved in the output
-        String noform = parseState().inMarkdownTable() ? "\\\\|noform" : "|noform";
-        String avg = parseState().inMarkdownTable() ? "\\\\|avg" : "|avg";
-        String dtxt = parseState().inMarkdownTable() ? "\\\\|text(" : "|text(";
+        String noform = parseState().inMarkdownTable() ? "\\|noform" : "|noform";
+        String noparen = parseState().inMarkdownTable() ? "\\|noparen" : "|noparen";
+        String avg = parseState().inMarkdownTable() ? "\\|avg" : "|avg";
+        String dtxt = parseState().inMarkdownTable() ? "\\|text(" : "|text(";
         String textValue = displayText == null ? "" : displayText.replace("`", "");
 
         // Only a dice formula in the roll part. May also have display text.
         return "`dice:" + diceRoll + noform +
+                (paren ? "" : noparen) +
                 (average ? avg : "") +
                 (displayText == null ? "`" : dtxt + textValue + ")`");
     }
@@ -248,7 +249,7 @@ public interface JsonTextConverter<T extends IndexType> {
     // reduce dice strings.. when parsing tags, we can't see leadng average
     default String simplifyFormattedDiceText(String text) {
         DiceFormulaState formulaState = parseState().diceFormulaState();
-        String dtxt = parseState().inMarkdownTable() ? "\\\\|text(" : "|text(";
+        String dtxt = parseState().inMarkdownTable() ? "\\|text(" : "|text(";
 
         // 26 (`dice:1d20+8|noform|text(+8)`) --> `dice:1d20+8|noform|text(26)` (`+8`)
         text = textAverageRoll.matcher(text).replaceAll((match) -> {
@@ -260,9 +261,15 @@ public interface JsonTextConverter<T extends IndexType> {
 
         // 7 (`dice:1d6+4|noform|avg` (`1d6 + 4`)) --> `dice:1d6+4|noform|avg|text(7)` (`1d6 + 4`)
         // 7 (`dice:2d6|noform|avg` (`2d6`)) --> `dice:2d6|noform|avg|text(7)` (`2d6`)
+        // 7 (`dice:2d6|noform|avg`) --> `dice:2d6|noform|avg|text(7)`
         text = averageRoll.matcher(text).replaceAll((match) -> {
-            String dice = match.group(2) + dtxt + match.group(1) + ")";
-            return " `" + dice + "` " + match.group(3);
+            var g1 = match.group(1);
+            var g2 = match.group(2);
+            var g3 = match.group(3);
+
+            var dice = g2 + dtxt + g1 + ")";
+
+            return " `" + dice + "`" + (g3 == null ? "" : " " + g3);
         });
 
         return text;

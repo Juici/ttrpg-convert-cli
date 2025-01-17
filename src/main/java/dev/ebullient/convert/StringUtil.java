@@ -1,5 +1,6 @@
 package dev.ebullient.convert;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,8 +12,11 @@ import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Holds common, generic string utiltity methods.
@@ -46,26 +50,37 @@ public class StringUtil {
     }
 
     /**
-     * {@link #join(String, Collection)} but with the ability to accept varargs.
-     *
-     * @see #join(String, Collection)
+     * @see #join(String, Iterable)
      */
     public static String join(String joiner, Object o1, Object... rest) {
-        List<Object> args = new ArrayList<>();
-        args.add(o1);
-        args.addAll(Arrays.asList(rest));
-        return join(joiner, args);
+        var type = o1.getClass();
+        var len = rest.length + 1;
+        var args = (type == Object.class) ? new Object[len] : (Object[]) Array.newInstance(type, len);
+        args[0] = o1;
+        System.arraycopy(rest, 0, args, 1, rest.length);
+        return join(joiner, Arrays.stream(args));
+    }
+
+    /**
+     * @see #join(String, Iterable)
+     */
+    public static String join(String delimeter, Object[] array) {
+        return array == null ? "" : join(delimeter, Arrays.stream(array));
     }
 
     /**
      * Join the list into a single trimmed string, delimited using the given delimiter. Returns an empty string if the
      * input list is null or empty, and ignores empty and null input elements.
      *
-     * @param joiner The delimiter to use to join the strings
-     * @param list The input strings to join together
+     * @param delimeter The delimiter to use to join the strings
+     * @param stream The input strings to join together
      */
-    public static String join(String joiner, Collection<?> list) {
-        return list == null ? "" : list.stream().collect(joiningNonEmpty(joiner)).trim();
+    public static String join(String delimeter, Iterable<?> list) {
+        return list == null ? "" : join(delimeter, StreamSupport.stream(list.spliterator(), false));
+    }
+
+    private static String join(String delimeter, Stream<?> stream) {
+        return stream.collect(joiningNonEmpty(delimeter)).trim();
     }
 
     /**
@@ -165,17 +180,71 @@ public class StringUtil {
         return out.toString();
     }
 
+    private static final Pattern TITLE_RE_INITIAL = Pattern.compile("(\\w+[^\\u2014\\s]) *");
+    private static final Pattern TITLE_RE_SPLIT_PUNCT = Pattern.compile("([;:?!.])");
+    private static final Pattern TITLE_RE_COMPOUND_LOWER = Pattern.compile("([a-z]-(?:Like|Kreen|Toa))");
+    private static final Pattern TITLE_RE_POST_PUNCT = Pattern.compile("^(\\s*)(\\S)");
+
+    private static final Pattern TITLE_RE_LOWER_WORDS;
+    private static final Pattern TITLE_RE_UPPER_WORDS;
+    private static final Pattern TITLE_RE_UPPER_WORDS_PLURAL;
+
+    static {
+
+        // Certain minor words should be left lowercase unless they are the first or last words in the string
+        final String[] TITLE_LOWER_WORDS = { "a", "an", "the", "and", "but", "or", "for", "nor", "as", "at", "by", "for",
+                "from",
+                "in", "into", "near", "of", "on", "onto", "to", "with", "over", "von", "between", "per", "beyond", "among" };
+        // Certain words such as initialisms or acronyms should be left uppercase
+        final String[] TITLE_UPPER_WORDS = { "Id", "Tv", "Dm", "Ok", "Npc", "Pc", "Tpk", "Wip", "Dc", "D&d" };
+        final String[] TITLE_UPPER_WORDS_PLURAL = { "Ids", "Tvs", "Dms", "Oks", "Npcs", "Pcs", "Tpks", "Wips", "Dcs" };
+
+        TITLE_RE_LOWER_WORDS = Pattern.compile("\\s(" + String.join("|", TITLE_LOWER_WORDS) + ")(?=\\s)",
+                Pattern.CASE_INSENSITIVE);
+        TITLE_RE_UPPER_WORDS = Pattern.compile("\\b(" + String.join("|", TITLE_UPPER_WORDS) + ")\\b");
+        TITLE_RE_UPPER_WORDS_PLURAL = Pattern.compile("\\b(" + String.join("|", TITLE_UPPER_WORDS_PLURAL) + ")\\b");
+    }
+
     /** Return the given text converted to title case, with the first letter of each word capitalized. */
     public static String toTitleCase(String text) {
         if (text == null || text.isEmpty()) {
             return text;
         }
-        return Arrays.stream(text.split(" "))
-                .map(word -> word.isEmpty()
-                        ? word
-                        : Character.toTitleCase(word.charAt(0)) + word.substring(1).toLowerCase())
-                .collect(Collectors.joining(" "));
+
+        text = TITLE_RE_INITIAL.matcher(text).replaceAll(m -> {
+            String word = m.group();
+            return word.isEmpty()
+                    ? word
+                    : Character.toString(Character.toTitleCase(word.codePointAt(0))) + word.substring(1).toLowerCase();
+        });
+
+        text = TITLE_RE_LOWER_WORDS.matcher(text).replaceAll(m -> m.group().toLowerCase());
+        text = TITLE_RE_UPPER_WORDS.matcher(text).replaceAll(m -> m.group().toUpperCase());
+
+        text = TITLE_RE_UPPER_WORDS_PLURAL.matcher(text).replaceAll(m -> {
+            String word = m.group();
+            return word.isEmpty() ? word
+                    : word.substring(0, word.length() - 1).toUpperCase() + word.substring(word.length() - 1).toLowerCase();
+        });
+
+        text = TITLE_RE_COMPOUND_LOWER.matcher(text).replaceAll(m -> m.group().toLowerCase());
+
+        return TITLE_RE_SPLIT_PUNCT.splitAsStream(text)
+                .map(pt -> TITLE_RE_POST_PUNCT.matcher(pt).replaceAll(m -> m.group(0) + m.group(1).toUpperCase()))
+                .collect(Collectors.joining());
     }
+
+    // /** Return the given text converted to title case, with the first letter of each word capitalized. */
+    // public static String toTitleCase(String text) {
+    //     if (text == null || text.isEmpty()) {
+    //         return text;
+    //     }
+    //     return Arrays.stream(text.split(" "))
+    //             .map(word -> word.isEmpty()
+    //                     ? word
+    //                     : Character.toTitleCase(word.charAt(0)) + word.substring(1).toLowerCase())
+    //             .collect(Collectors.joining(" "));
+    // }
 
     /** Returns true if the given string is non-null and non-blank. */
     public static boolean isPresent(String s) {
@@ -396,8 +465,11 @@ public class StringUtil {
         @Override
         public BiConsumer<List<String>, T> accumulator() {
             return (acc, cur) -> {
-                if (cur != null && !cur.toString().isBlank()) {
-                    acc.add(cur.toString());
+                if (cur != null) {
+                    String s = cur.toString();
+                    if (!s.isBlank()) {
+                        acc.add(s);
+                    }
                 }
             };
         }

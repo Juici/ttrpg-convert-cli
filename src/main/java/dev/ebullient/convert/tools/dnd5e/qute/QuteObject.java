@@ -152,13 +152,16 @@ public class QuteObject extends Tools5eQuteBase {
         Map<String, Object> map = new LinkedHashMap<>();
         addUnlessEmpty(map, "name", name);
         addUnlessEmpty(map, "size", size);
-        addUnlessEmpty(map, "type", creatureType);
+        map.put("type", creatureType == null || creatureType.isBlank() ? "object" : creatureType);
 
         addIntegerUnlessEmpty(map, "ac", acHp.ac);
+        addUnlessEmpty(map, "ac_class", acHp.acText);
         addIntegerUnlessEmpty(map, "hp", acHp.hp);
+        addUnlessEmpty(map, "hp_text", acHp.hpText);
+        addUnlessEmpty(map, "hit_dice", acHp.hitDice);
+        addUnlessEmpty(map, "speed", speed);
 
         map.put("stats", scores.toArray());
-        addUnlessEmpty(map, "speed", speed);
 
         addUnlessEmpty(map, "damage_vulnerabilities", immuneResist.vulnerable);
         addUnlessEmpty(map, "damage_resistances", immuneResist.resist);
@@ -172,11 +175,6 @@ public class QuteObject extends Tools5eQuteBase {
             map.put("image", token.getVaultPath());
         }
 
-        // De-markdown-ify
-        return Tui.quotedYaml().dump(map).trim()
-                .replaceAll("`", "")
-                .replaceAll("\\*([^*]+)\\*", "$1") // em
-                .replaceAll("\\*([^*]+)\\*", "$1") // bold
-                .replaceAll("\\*([^*]+)\\*", "$1"); // bold em
+        return Tui.quotedYaml().dump(map).trim();
     }
 }

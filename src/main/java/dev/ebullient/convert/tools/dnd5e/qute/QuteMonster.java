@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import dev.ebullient.convert.io.Tui;
@@ -71,8 +72,14 @@ public class QuteMonster extends Tools5eQuteBase {
     public final Collection<NamedText> bonusAction;
     /** Creature reactions as a list of {@link dev.ebullient.convert.qute.NamedText} */
     public final Collection<NamedText> reaction;
+    /** Creature legendary header */
+    public final String legendaryHeader;
+    /** Creature legendary actions */
+    public final Integer legendaryActions;
     /** Creature legendary traits as a list of {@link dev.ebullient.convert.qute.NamedText} */
     public final Collection<NamedText> legendary;
+    /** Creature mythic traits as a list of {@link dev.ebullient.convert.qute.NamedText} */
+    public final Collection<NamedText> mythic;
     /**
      * Map of grouped legendary traits (Lair Actions, Regional Effects, etc.). The key the group name, and the value is a list
      * of
@@ -102,7 +109,10 @@ public class QuteMonster extends Tools5eQuteBase {
             String languages, String cr, String pb,
             Collection<NamedText> trait,
             Collection<NamedText> action, Collection<NamedText> bonusAction, Collection<NamedText> reaction,
+            String legendaryHeader,
+            Integer legendaryActions,
             Collection<NamedText> legendary,
+            Collection<NamedText> mythic,
             Collection<NamedText> legendaryGroup, String legendaryGroupLink,
             List<Spellcasting> spellcasting, String description, String environment,
             ImageRef tokenImage, List<ImageRef> fluffImages, Tags tags) {
@@ -130,7 +140,10 @@ public class QuteMonster extends Tools5eQuteBase {
         this.action = action;
         this.bonusAction = bonusAction;
         this.reaction = reaction;
+        this.legendaryHeader = legendaryHeader;
+        this.legendaryActions = legendaryActions;
         this.legendary = legendary;
+        this.mythic = mythic;
         this.legendaryGroup = legendaryGroup;
         this.legendaryGroupLink = legendaryGroupLink;
         this.spellcasting = spellcasting;
@@ -239,6 +252,32 @@ public class QuteMonster extends Tools5eQuteBase {
         return savesSkills.skillMap;
     }
 
+    public String getShortName() {
+        String base = name.split(",")[0];
+        String out = Pattern
+                .compile("(?:adult|ancient|young) \\w+ (dragon|dracolich)", Pattern.UNICODE_CASE | Pattern.CASE_INSENSITIVE)
+                .matcher(base).replaceAll("$1");
+
+        return isNpc ? out.split(" ")[0] : out.toLowerCase();
+    }
+
+    public String getLegendaryHeader() {
+        if (legendaryHeader != null) {
+            return legendaryHeader;
+        } else if ((legendary == null || legendary.isEmpty()) && (mythic == null || mythic.isEmpty())) {
+            return null;
+        }
+
+        int actions = legendaryActions == null ? 3 : legendaryActions.intValue();
+
+        String name = isNpc ? getShortName() : "The " + getShortName();
+        String pronoun = isNpc ? "their" : "its";
+
+        return String.format(
+                "Legendary Action Uses: %d. Immediately after another creature's turn, %s can expend a use to take one of the following actions. %s regains all expended uses at the start of each of %s turns.",
+                actions, name, name, pronoun);
+    }
+
     /**
      * A minimal YAML snippet containing monster attributes required by the
      * Initiative Tracker plugin. Use this in frontmatter.
@@ -271,10 +310,11 @@ public class QuteMonster extends Tools5eQuteBase {
         addIntegerUnlessEmpty(map, "ac", acHp.ac);
         addUnlessEmpty(map, "ac_class", acHp.acText);
         addIntegerUnlessEmpty(map, "hp", acHp.hp);
+        addUnlessEmpty(map, "hp_text", acHp.hpText);
         addUnlessEmpty(map, "hit_dice", acHp.hitDice);
+        addUnlessEmpty(map, "speed", speed);
 
         map.put("stats", scores.toArray());
-        addUnlessEmpty(map, "speed", speed);
         if (savesSkills != null) {
             if (!savesSkills.saveMap.isEmpty()) {
                 map.put("saves", mapOfNumbers(savesSkills.saveMap));
@@ -287,7 +327,7 @@ public class QuteMonster extends Tools5eQuteBase {
         addUnlessEmpty(map, "damage_resistances", immuneResist.resist);
         addUnlessEmpty(map, "damage_immunities", immuneResist.immune);
         addUnlessEmpty(map, "condition_immunities", immuneResist.conditionImmune);
-        map.put("senses", (senses.isBlank() ? "" : senses + ", ") + "passive Perception " + passive);
+        map.put("senses", (senses.isBlank() ? "" : senses + ", ") + "Passive Perception " + passive);
         map.put("languages", languages);
         addUnlessEmpty(map, "cr", cr);
 
@@ -299,7 +339,9 @@ public class QuteMonster extends Tools5eQuteBase {
         addUnlessEmpty(map, "actions", action);
         addUnlessEmpty(map, "bonus_actions", bonusAction);
         addUnlessEmpty(map, "reactions", reaction);
+        addUnlessEmpty(map, "legendary_description", getLegendaryHeader());
         addUnlessEmpty(map, "legendary_actions", legendary);
+        addUnlessEmpty(map, "mythic_actions", mythic);
 
         if (legendaryGroup != null) {
             for (NamedText group : legendaryGroup) {
@@ -317,12 +359,7 @@ public class QuteMonster extends Tools5eQuteBase {
             map.put("image", token.getVaultPath());
         }
 
-        // De-markdown-ify
-        return Tui.quotedYaml().dump(map).trim()
-                .replaceAll("`", "")
-                .replaceAll("\\*([^*]+)\\*", "$1") // em
-                .replaceAll("\\*([^*]+)\\*", "$1") // bold
-                .replaceAll("\\*([^*]+)\\*", "$1"); // bold em
+        return Tui.quotedYaml().dump(map).trim();
     }
 
     public String yamlMonsterName() {
@@ -453,8 +490,7 @@ public class QuteMonster extends Tools5eQuteBase {
             if (spells == null || spells.isEmpty()) {
                 return;
             }
-            maybeAddBlankLine(text);
-            text.add(String.format("**%s**: %s", title, String.join(", ", spells)));
+            text.add(String.format("- %s: %s", title, String.join(", ", spells)));
         }
 
         void maybeAddBlankLine(List<String> text) {
