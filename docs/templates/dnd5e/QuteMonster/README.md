@@ -6,7 +6,7 @@ Extension of [Tools5eQuteBase](../Tools5eQuteBase.md).
 
 ## Attributes
 
-[5eInitiativeYaml](#5einitiativeyaml), [5eInitiativeYamlNoSource](#5einitiativeyamlnosource), [5eStatblockYaml](#5estatblockyaml), [5eStatblockYamlNoSource](#5estatblockyamlnosource), [ac](#ac), [acHp](#achp), [acText](#actext), [action](#action), [alignment](#alignment), [bonusAction](#bonusaction), [books](#books), [conditionImmune](#conditionimmune), [cr](#cr), [description](#description), [environment](#environment), [fluffImages](#fluffimages), [fullType](#fulltype), [hasImages](#hasimages), [hasMoreImages](#hasmoreimages), [hasSections](#hassections), [hitDice](#hitdice), [hp](#hp), [hpText](#hptext), [immune](#immune), [immuneResist](#immuneresist), [isNpc](#isnpc), [labeledSource](#labeledsource), [languages](#languages), [legendary](#legendary), [legendaryGroup](#legendarygroup), [legendaryGroupLink](#legendarygrouplink), [name](#name), [passive](#passive), [pb](#pb), [reaction](#reaction), [reprintOf](#reprintof), [resist](#resist), [savesSkills](#savesskills), [savingThrows](#savingthrows), [scores](#scores), [senses](#senses), [showAllImages](#showallimages), [showMoreImages](#showmoreimages), [showPortraitImage](#showportraitimage), [size](#size), [skills](#skills), [source](#source), [sourceAndPage](#sourceandpage), [sourcesWithFootnote](#sourceswithfootnote), [speed](#speed), [spellcasting](#spellcasting), [subtype](#subtype), [tags](#tags), [text](#text), [token](#token), [trait](#trait), [type](#type), [vaultPath](#vaultpath), [vulnerable](#vulnerable)
+[5eInitiativeYaml](#5einitiativeyaml), [5eInitiativeYamlNoSource](#5einitiativeyamlnosource), [5eStatblockYaml](#5estatblockyaml), [5eStatblockYamlNoSource](#5estatblockyamlnosource), [ac](#ac), [acHp](#achp), [acText](#actext), [action](#action), [alignment](#alignment), [bonusAction](#bonusaction), [books](#books), [conditionImmune](#conditionimmune), [cr](#cr), [description](#description), [environment](#environment), [fluffImages](#fluffimages), [fullType](#fulltype), [hasImages](#hasimages), [hasMoreImages](#hasmoreimages), [hasSections](#hassections), [hitDice](#hitdice), [hp](#hp), [hpText](#hptext), [immune](#immune), [immuneResist](#immuneresist), [isNpc](#isnpc), [labeledSource](#labeledsource), [languages](#languages), [legendary](#legendary), [legendaryActions](#legendaryactions), [legendaryGroup](#legendarygroup), [legendaryGroupLink](#legendarygrouplink), [legendaryHeader](#legendaryheader), [mythic](#mythic), [name](#name), [passive](#passive), [pb](#pb), [reaction](#reaction), [reprintOf](#reprintof), [resist](#resist), [savesSkills](#savesskills), [savingThrows](#savingthrows), [scores](#scores), [senses](#senses), [shortName](#shortname), [showAllImages](#showallimages), [showMoreImages](#showmoreimages), [showPortraitImage](#showportraitimage), [size](#size), [skills](#skills), [source](#source), [sourceAndPage](#sourceandpage), [sourcesWithFootnote](#sourceswithfootnote), [speed](#speed), [spellcasting](#spellcasting), [subtype](#subtype), [tags](#tags), [text](#text), [token](#token), [trait](#trait), [type](#type), [vaultPath](#vaultpath), [vulnerable](#vulnerable)
 
 ### 5eInitiativeYaml
 
@@ -138,6 +138,10 @@ Comma-separated string of languages the creature understands.
 
 Creature legendary traits as a list of [NamedText](../../NamedText.md)
 
+### legendaryActions
+
+Creature legendary actions
+
 ### legendaryGroup
 
 Map of grouped legendary traits (Lair Actions, Regional Effects, etc.).
@@ -146,6 +150,13 @@ The key the group name, and the value is a list of [NamedText](../../NamedText.m
 ### legendaryGroupLink
 
 Markdown link to legendary group (can be embedded).
+
+### legendaryHeader
+
+
+### mythic
+
+Creature mythic traits as a list of [NamedText](../../NamedText.md)
 
 ### name
 
@@ -187,6 +198,9 @@ Creature ability scores as [AbilityScores](../AbilityScores.md)
 ### senses
 
 Comma-separated string of creature senses (if present).
+
+### shortName
+
 
 ### showAllImages
 

@@ -6,11 +6,15 @@ Use these functions to help render TTRPG data in Qute templates.
 
 ## Attributes
 
-[asBonus](#asbonus), [capitalized](#capitalized), [join](#join), [joinConjunct](#joinconjunct), [pluralizeLabel](#pluralizelabel), [prefixSpace](#prefixspace)
+[asBonus](#asbonus), [asYaml](#asyaml), [capitalized](#capitalized), [join](#join), [joinConjunct](#joinconjunct), [pluralizeLabel](#pluralizelabel), [prefixSpace](#prefixspace)
 
 ### asBonus
 
 Return the value formatted with a bonus with a +/- prefix. Example: `{perception.asBonus}`
+
+### asYaml
+
+Return the string escaped for use in YAML. Example: `{resource.name.asYaml}`
 
 ### capitalized
 
@@ -18,7 +22,7 @@ Return the string capitalized. Example: `{resource.name.capitalized}`
 
 ### join
 
-Return the given collection converted into a string and joined using the specified joiner.
+Return the given array converted into a string and joined using the specified joiner.
 
 Example: `{resource.components.join(", ")}`
 
