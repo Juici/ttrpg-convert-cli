@@ -58,13 +58,23 @@ public class TtrpgTemplateExtension {
     }
 
     /**
-     * Return the given collection converted into a string and joined using the specified joiner.
+     * Return the given iterable converted into a string and joined using the specified joiner.
      *
      * Example: `{resource.components.join(", ")}`
      */
     @JavadocVerbatim
-    static String join(Collection<?> collection, String joiner) {
-        return StringUtil.join(joiner, collection);
+    static String join(Iterable<?> iterable, String joiner) {
+        return StringUtil.join(joiner, iterable);
+    }
+
+    /**
+     * Return the given array converted into a string and joined using the specified joiner.
+     *
+     * Example: `{resource.components.join(", ")}`
+     */
+    @JavadocVerbatim
+    static String join(Object[] array, String delimeter) {
+        return StringUtil.join(delimeter, array);
     }
 
     /**
