@@ -851,12 +851,18 @@ public class Json2QuteCommon implements JsonSource {
     }
 
     Collection<NamedText> collectTraits(String field) {
+        return collectTraits(field, false);
+    }
+
+    Collection<NamedText> collectTraits(String field, boolean noHeader) {
         boolean pushed = parseState().pushTrait();
         try {
             List<NamedText> traits = new ArrayList<>();
-            JsonNode header = rootNode.get(field + "Header");
-            if (header != null) {
-                addNamedTrait(traits, "", header);
+            if (!noHeader) {
+                JsonNode header = rootNode.get(field + "Header");
+                if (header != null) {
+                    addNamedTrait(traits, "", header);
+                }
             }
             collectTraits(traits, rootNode.get(field));
             return traits;
