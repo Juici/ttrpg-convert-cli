@@ -609,7 +609,7 @@ public class Json2QuteCommon implements JsonSource {
             JsonNode v = speedNode.get(k);
             JsonNode altV = alternate == null ? null : alternate.get(k);
             if (v != null) {
-                String prefix = "walk".equals(k) ? "" : k + " ";
+                String prefix = "walk".equals(k) ? "" : StringUtil.uppercaseFirst(k) + " ";
                 speed.add(prefix + speedValue(k, v, includeZeroWalk));
                 if (altV != null && altV.isArray()) {
                     altV.forEach(x -> speed.add(prefix + speedValue(k, x, includeZeroWalk)));
@@ -800,7 +800,7 @@ public class Json2QuteCommon implements JsonSource {
 
             for (JsonNode value : field.iterateArrayFrom(fromNode)) {
                 if (value.isTextual()) { // damage or condition type
-                    immunities.add(textValue(field, value.asText()));
+                    immunities.add(textValue(field, StringUtil.uppercaseFirst(value.asText())));
                 } else if (VulnerabilityFields.special.existsIn(value)) { // "special"
                     immunities.add(VulnerabilityFields.special.replaceTextFrom(value, this)
                             .replace("see (below|above)", "see details"));
