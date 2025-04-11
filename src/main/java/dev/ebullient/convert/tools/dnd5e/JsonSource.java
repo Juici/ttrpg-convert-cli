@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import dev.ebullient.convert.StringUtil;
 import dev.ebullient.convert.io.Msg;
 import dev.ebullient.convert.io.Tui;
 import dev.ebullient.convert.qute.ImageRef;
@@ -1202,20 +1203,20 @@ public interface JsonSource extends JsonTextReplacement {
             return "";
         }
         return switch (dmgType.toUpperCase()) {
-            case "A" -> "acid";
-            case "B" -> "bludgeoning";
-            case "C" -> "cold";
-            case "F" -> "fire";
-            case "O" -> "force";
-            case "L" -> "lightning";
-            case "N" -> "necrotic";
-            case "P" -> "piercing";
-            case "I" -> "poison";
-            case "Y" -> "psychic";
-            case "R" -> "radiant";
-            case "S" -> "slashing";
-            case "T" -> "thunder";
-            default -> dmgType;
+            case "A" -> "Acid";
+            case "B" -> "Bludgeoning";
+            case "C" -> "Cold";
+            case "F" -> "Fire";
+            case "O" -> "Force";
+            case "L" -> "Lightning";
+            case "N" -> "Necrotic";
+            case "P" -> "Piercing";
+            case "I" -> "Poison";
+            case "Y" -> "Psychic";
+            case "R" -> "Radiant";
+            case "S" -> "Slashing";
+            case "T" -> "Thunder";
+            default -> StringUtil.toTitleCase(dmgType);
         };
     };
 
