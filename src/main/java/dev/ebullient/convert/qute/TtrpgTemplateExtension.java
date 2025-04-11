@@ -36,7 +36,7 @@ public class TtrpgTemplateExtension {
     /**
      * Return the string pluralized based on the size of the collection.
      *
-     * Example: `{resource.name.pluralized(resource.components)}`
+     * Example: `{resource.components.pluralizeLabel(resource.name)}`
      */
     @JavadocVerbatim
     static String pluralizeLabel(Collection<?> collection, String s) {
