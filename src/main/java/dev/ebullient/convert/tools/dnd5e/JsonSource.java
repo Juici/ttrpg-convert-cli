@@ -984,7 +984,7 @@ public interface JsonSource extends JsonTextReplacement {
 
     default String mapAlignmentToString(String a) {
         return switch (a.toUpperCase()) {
-            case "A" -> "Any alignment";
+            case "A" -> "Any Alignment";
             case "C" -> "Chaotic";
             case "CE" -> "Chaotic Evil";
             case "CG" -> "Chaotic Good";
@@ -992,7 +992,7 @@ public interface JsonSource extends JsonTextReplacement {
             case "CGCN" -> "Chaotic Good or Chaotic Neutral";
             case "CGNE" -> "Chaotic Good or Neutral Evil";
             case "CECN" -> "Chaotic Evil or Chaotic Neutral";
-            case "CGNYE" -> "Any Chaotic alignment";
+            case "CGNYE" -> "Any Chaotic Alignment";
             case "CN" -> "Chaotic Neutral";
             case "CENE", "NECE" -> "Chaotic Evil or Neutral Evil";
             case "L" -> "Lawful";
@@ -1008,14 +1008,14 @@ public interface JsonSource extends JsonTextReplacement {
             case "NE" -> "Neutral Evil";
             case "NG" -> "Neutral Good";
             case "NGNE", "NENG" -> "Neutral Good or Neutral Evil";
-            case "G", "LNXCG" -> "Any Good alignment";
-            case "E", "CELENE", "LNXCE" -> "Any Evil alignment";
+            case "G", "LNXCG" -> "Any Good Alignment";
+            case "E", "CELENE", "LNXCE" -> "Any Evil Alignment";
             case "NELE", "LENE" -> "Neutral Evil or Lawful Evil";
-            case "LGNYE" -> "Any Non-Chaotic alignment";
-            case "LNXCNYE" -> "Any Non-Good alignment";
-            case "NXCGNYE" -> "Any Non-Lawful alignment";
-            case "NXLGNYE" -> "Any Non-Chaotic alignment";
-            case "LNXCNYG", "LNYNXCG" -> "Any Non-Evil alignment";
+            case "LGNYE" -> "Any Non-Chaotic Alignment";
+            case "LNXCNYE" -> "Any Non-Good Alignment";
+            case "NXCGNYE" -> "Any Non-Lawful Alignment";
+            case "NXLGNYE" -> "Any Non-Chaotic Alignment";
+            case "LNXCNYG", "LNYNXCG" -> "Any Non-Evil Alignment";
             case "U" -> "Unaligned";
             default -> {
                 tui().errorf("What alignment is this? %s (from %s)", a, getSources());
