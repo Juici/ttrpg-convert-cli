@@ -1,12 +1,10 @@
 package dev.ebullient.convert.qute;
 
-import static dev.ebullient.convert.StringUtil.pluralize;
-import static dev.ebullient.convert.StringUtil.toTitleCase;
-
 import java.util.Collection;
 
 import dev.ebullient.convert.StringUtil;
 import dev.ebullient.convert.io.JavadocVerbatim;
+import dev.ebullient.convert.io.Tui;
 import io.quarkus.qute.TemplateExtension;
 
 /**
@@ -17,6 +15,12 @@ import io.quarkus.qute.TemplateExtension;
 @TemplateExtension
 public class TtrpgTemplateExtension {
 
+    /** Return the string escaped for use in YAML. Example: `{resource.name.asYaml}` */
+    @JavadocVerbatim
+    static String asYaml(String s) {
+        return Tui.quotedYaml().dump(s).trim();
+    }
+
     /** Return the value formatted with a bonus with a +/- prefix. Example: `{perception.asBonus}` */
     @JavadocVerbatim
     static String asBonus(Integer value) {
@@ -26,7 +30,7 @@ public class TtrpgTemplateExtension {
     /** Return the string capitalized. Example: `{resource.name.capitalized}` */
     @JavadocVerbatim
     static String capitalized(String s) {
-        return toTitleCase(s);
+        return StringUtil.toTitleCase(s);
     }
 
     /**
@@ -36,7 +40,7 @@ public class TtrpgTemplateExtension {
      */
     @JavadocVerbatim
     static String pluralizeLabel(Collection<?> collection, String s) {
-        return pluralize(s, collection.size(), true);
+        return StringUtil.pluralize(s, collection.size(), true);
     }
 
     /**
