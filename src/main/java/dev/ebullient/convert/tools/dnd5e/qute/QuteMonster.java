@@ -335,8 +335,8 @@ public class QuteMonster extends Tools5eQuteBase {
         addUnlessEmpty(map, "hp_text", acHp.hpText);
         addUnlessEmpty(map, "hit_dice", acHp.hitDice);
 
-        map.put("stats", scores.toArray());
         addUnlessEmpty(map, "speed", speed);
+        map.put("stats", scores.toArray());
         if (savesSkills != null) {
             if (!savesSkills.saveMap.isEmpty()) {
                 map.put("saves", mapOfNumbers(savesSkills.saveMap));

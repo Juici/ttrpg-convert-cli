@@ -150,8 +150,8 @@ public class QuteObject extends Tools5eQuteBase {
         addUnlessEmpty(map, "hp_text", acHp.hpText);
         addUnlessEmpty(map, "hit_dice", acHp.hitDice);
 
-        map.put("stats", scores.toArray());
         addUnlessEmpty(map, "speed", speed);
+        map.put("stats", scores.toArray());
 
         addUnlessEmpty(map, "damage_vulnerabilities", immuneResist.vulnerable);
         addUnlessEmpty(map, "damage_resistances", immuneResist.resist);
