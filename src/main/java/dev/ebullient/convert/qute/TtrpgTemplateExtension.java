@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import dev.ebullient.convert.StringUtil;
 import dev.ebullient.convert.io.JavadocVerbatim;
+import dev.ebullient.convert.io.Tui;
 import io.quarkus.qute.TemplateExtension;
 
 /**
@@ -24,6 +25,12 @@ public class TtrpgTemplateExtension {
     @JavadocVerbatim
     static String capitalized(String s) {
         return StringUtil.toTitleCase(s);
+    }
+
+    /** Return the string escaped for use in YAML. Example: `{resource.name.asYaml}` */
+    @JavadocVerbatim
+    static String asYaml(String s) {
+        return Tui.quotedYaml().dump(s).trim();
     }
 
     /**
